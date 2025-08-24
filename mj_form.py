@@ -1,5 +1,5 @@
 import streamlit as st
-invalid non-printable character U+00A0
+import yaml
 
 st.set_page_config(page_title="Midjourney YAML → Prompt 変換ツール", layout="centered")
 
