@@ -5,11 +5,15 @@ st.set_page_config(page_title="Midjourney YAML → Prompt 変換ツール", layo
 
 st.title("🪄 Midjourney YAML → プロンプト変換ツール")
 
-# 入力欄
-yaml_text = st.text_area(
-    "YAML形式でプロンプトを入力してください：",
-    height=300,  
-    value="""subject: エプロン姿で立つキャリアウーマン風な真面目な女子高生
+st.markdown(
+    """
+    このツールは、YAMLで書いたプロンプトをMidjourney用の1行プロンプトに変換します。  
+    YAML形式のサンプルが下に入っていますので、編集して使ってください。
+    """
+)
+
+# デフォルトのYAMLサンプル
+default_yaml = """subject: エプロン姿で立つキャリアウーマン風な真面目な女子高生
 setting:
   location: 朝食の準備に忙しい自宅のキッチン、キャベツを切っている女子高生、キッチンの窓から朝日が差し込んでいる
   time: ７月、午前７時
@@ -18,24 +22,30 @@ style:
   art: グランブルーファンタジー風
   detail: 繊細な線と発色
   color: 濃いカラー
+model:
+  type: niji
 parameters:
   aspect_ratio: 3:4
   stylize: 700
   chaos: 0
   seed: 42
-notes: ガスコンロの上で湯気を出している鍋には昨日のカレー、ポットから沸騰のサイン"""
-)
+notes: ガスコンロの上で湯気を出している鍋には昨日のカレー、ポットから沸騰のサイン
+"""
+
+yaml_text = st.text_area("✏️ YAML形式でプロンプトを入力：", value=default_yaml, height=300)
 
 def yaml_to_prompt(yaml_text):
     try:
         data = yaml.safe_load(yaml_text)
+        if not isinstance(data, dict):
+            return "❌ YAMLの形式が正しくありません。"
     except Exception as e:
-        return f"❌ YAMLの読み込みエラー: {e}"
+        return f"❌ YAML読み込みエラー: {e}"
 
     parts = []
 
     # subject
-    if "subject" in data:
+    if "subject" in data and data["subject"]:
         parts.append(str(data["subject"]))
 
     # setting
@@ -51,7 +61,7 @@ def yaml_to_prompt(yaml_text):
                 parts.append(str(v))
 
     # notes
-    if "notes" in data:
+    if "notes" in data and data["notes"]:
         parts.append(str(data["notes"]))
 
     # 本文プロンプト
@@ -74,7 +84,7 @@ def yaml_to_prompt(yaml_text):
 
 # 変換ボタン
 if st.button("🔄 変換する"):
-    output = yaml_to_prompt(yaml_text)
+    result = yaml_to_prompt(yaml_text)
     st.subheader("✅ Midjourney用プロンプト")
-    st.code(output, language="text")
+    st.code(result, language="text")
     st.success("コピーしてMidjourneyに貼り付けてください！")
